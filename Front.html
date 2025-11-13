@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wing Ya Chifa - Sistema de Gestión</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f5f5f5;
+            height: 100vh;
+            display: flex;
+            overflow: hidden;
+        }
+
+        /* Menú lateral */
+        .sidebar {
+            width: 250px;
+            background-color: #1a1a1a;
+            color: white;
+            height: 100vh;
+            padding: 20px 0;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column; /* Para que el footer se quede abajo */
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            margin-bottom: 30px;
+            border-bottom: 1px solid #333;
+        }
+
+        .logo {
+            width: 60px;
+            height: 60px;
+            background-color: #ff3333;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 20px;
+            color: white;
+            margin-right: 10px;
+        }
+
+        .logo-text {
+            font-size: 18px;
+            font-weight: bold;
+            color: #ff3333;
+        }
+
+        .menu-list {
+            flex-grow: 1; /* Ocupa el espacio disponible */
+        }
+
+        .menu-item {
+            padding: 15px 25px;
+            display: flex;
+            align-items: center;
+            color: #ddd;
+            text-decoration: none;
+            transition: all 0.3s;
+            border-left: 3px solid transparent;
+            cursor: pointer;
+        }
+
+        .menu-item:hover {
+            background-color: #333;
+            color: white;
+            border-left: 3px solid #ff3333;
+        }
+
+        .menu-item i {
+            margin-right: 15px;
+            font-size: 18px;
+            width: 20px;
+            text-align: center;
+        }
+
+        .menu-item.active {
+            background-color: #333;
+            color: white;
+            border-left: 3px solid #ff3333;
+        }
+        
+        /* Footer del menú lateral */
+        .sidebar-footer {
+            border-top: 1px solid #333;
+            padding-top: 10px;
+        }
+
+        .sidebar-footer .menu-item {
+            font-size: 14px;
+            padding: 12px 25px;
+        }
+
+        .sidebar-footer .menu-item.logout {
+            color: #ff6b6b;
+        }
+        .sidebar-footer .menu-item.logout:hover {
+            color: #ff3333;
+        }
+
+        /* Contenedor principal */
+        .main-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background-color: #f8f8f8;
+            overflow-y: auto;
+        }
+
+        .header {
+            background-color: white;
+            padding: 15px 30px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .header h1 {
+            color: #333;
+            font-size: 24px;
+        }
+        .header .user-info {
+            display: flex;
+            align-items: center;
+            color: #555;
+        }
+        .header .user-info i {
+            margin-right: 10px;
+        }
+
+        /* Vistas (páginas) */
+        .view {
+            display: none;
+            padding: 30px;
+            animation: fadeIn 0.4s;
+        }
+
+        .view.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .content-card {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            padding: 30px;
+        }
+
+        /* Estilos para la vista de bienvenida */
+        .welcome-container {
+            text-align: center;
+        }
+        .welcome-title {
+            color: #ff3333;
+            font-size: 60px;
+            font-weight: bold;
+            margin-bottom: 40px;
+        }
+        .brand-logo-large {
+            width: 150px;
+            height: 150px;
+            margin: 0 auto 40px;
+            background-color: #ff3333;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 48px;
+            font-weight: bold;
+        }
+        .contact-info {
+            text-align: left;
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+        }
+        .contact-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            color: #333;
+        }
+        .contact-item i {
+            color: #ff3333;
+            margin-right: 15px;
+            font-size: 18px;
+            width: 20px;
+            text-align: center;
+        }
+        .contact-label {
+            font-weight: bold;
+            margin-right: 10px;
+            color: #555;
+        }
+
+        /* Estilos para formularios */
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        .form-control:focus {
+            outline: none;
+            border-color: #ff3333;
+            box-shadow: 0 0 0 2px rgba(255, 51, 51, 0.2);
+        }
+        .checkbox-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 10px;
+        }
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+        }
+        .checkbox-item input[type="checkbox"] {
+            margin-right: 8px;
+        }
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.1s;
+        }
+        .btn-primary {
+            background-color: #ffc107;
+            color: #333;
+        }
+        .btn-primary:hover {
+            background-color: #e0a800;
+            transform: translateY(-2px);
+        }
+
+        /* Estilos para tablas */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        .data-table th, .data-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        .data-table th {
+            background-color: #f2f2f2;
+            font-weight: 600;
+            color: #555;
+        }
+        .data-table tbody tr:hover {
+            background-color: #f9f9f9;
+        }
+        .table-actions {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+        }
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+        .btn-danger {
+            background-color: #dc3545;
+            color: white;
+        }
+        .btn-danger:hover {
+            background-color: #c82333;
+        }
+        .no-records {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+            font-style: italic;
+        }
+        
+        /* Estilos para la vista de Ayuda (FAQ) */
+        .faq-item {
+            margin-bottom: 15px;
+            border: 1px solid #eee;
+            border-radius: 5px;
+        }
+        .faq-item summary {
+            padding: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            background-color: #f9f9f9;
+            color: #333;
+            list-style: none; /* Quitar el triángulo por defecto */
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .faq-item summary::-webkit-details-marker {
+            display: none; /* Ocultar en Chrome/Safari */
+        }
+        .faq-item summary::after {
+            content: '+';
+            font-size: 20px;
+            color: #ff3333;
+        }
+        .faq-item[open] summary::after {
+            content: '-';
+        }
+        .faq-item p {
+            padding: 15px;
+            color: #555;
+            line-height: 1.6;
+        }
+        
+        /* Estilos para la vista de Configuración */
+        .settings-group {
+            border-bottom: 1px solid #eee;
+            padding-bottom: 20px;
+            margin-bottom: 20px;
+        }
+        .settings-group:last-child {
+            border-bottom: none;
+        }
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 24px;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        input:checked + .slider {
+            background-color: #ff3333;
+        }
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+        .setting-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- Menú lateral -->
+    <nav class="sidebar">
+        <div class="logo-container">
+            <div class="logo">WY</div>
+            <div class="logo-text">Wing Ya Chifa</div>
+        </div>
+        
+        <div class="menu-list">
+            <a class="menu-item active" data-view="view-welcome">
+                <i class="fas fa-home"></i>
+                <span>Inicio</span>
+            </a>
+            
+            <a class="menu-item" data-view="view-request">
+                <i class="fas fa-file-alt"></i>
+                <span>Registrar Solicitud</span>
+            </a>
+            
+            <a class="menu-item" data-view="view-dispatch">
+                <i class="fas fa-truck"></i>
+                <span>Registrar Despacho</span>
+            </a>
+            
+            <a class="menu-item" data-view="view-purchase-order">
+                <i class="fas fa-clipboard-list"></i>
+                <span>Orden de Compra</span>
+            </a>
+            
+            <a class="menu-item" data-view="view-stock">
+                <i class="fas fa-boxes"></i>
+                <span>Actualizar Stock</span>
+            </a>
+            
+            <a class="menu-item" data-view="view-history">
+                <i class="fas fa-history"></i>
+                <span>Historial de Movimientos</span>
+            </a>
+        </div>
+
+        <div class="sidebar-footer">
+            <a class="menu-item" data-view="view-settings">
+                <i class="fas fa-cog"></i>
+                <span>Configuración</span>
+            </a>
+            <a class="menu-item" data-view="view-help">
+                <i class="fas fa-question-circle"></i>
+                <span>Ayuda</span>
+            </a>
+            <a class="menu-item logout" id="logout-btn">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Cerrar Sesión</span>
+            </a>
+        </div>
+    </nav>
+
+    <!-- Contenedor principal para el contenido dinámico -->
+    <main class="main-container">
+        <header class="header">
+            <h1 id="page-title">Panel de Control</h1>
+            <div class="user-info">
+                <i class="fas fa-user-circle"></i>
+                <span>Administrador</span>
+            </div>
+        </header>
+
+        <!-- Vista 1: Bienvenida -->
+        <section id="view-welcome" class="view active">
+            <div class="content-card welcome-container">
+                <div class="brand-logo-large">WY</div>
+                <h1 class="welcome-title">BIENVENIDO</h1>
+                <p style="color: #666; font-size: 18px;">Sistema de Gestión de Insumos - Wing Ya Chifa</p>
+                
+                <div class="contact-info">
+                    <div class="contact-item">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <span class="contact-label">Dirección:</span>
+                        <span>Av. América Sur 4172 Urb. San Andrés III etapa, Trujillo, Peru</span>
+                    </div>
+                    <div class="contact-item">
+                        <i class="fas fa-phone"></i>
+                        <span class="contact-label">Teléfono:</span>
+                        <span>(044) 222434</span>
+                    </div>
+                    <div class="contact-item">
+                        <i class="fas fa-mobile-alt"></i>
+                        <span class="contact-label">Celular:</span>
+                        <span>+51 958 887 089</span>
+                    </div>
+                    <div class="contact-item">
+                        <i class="fas fa-envelope"></i>
+                        <span class="contact-label">Correo:</span>
+                        <span>wingyafc@gmail.com</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Vista 2: Registrar Solicitud -->
+        <section id="view-request" class="view">
+            <div class="content-card">
+                <h2 style="color: #ff3333; margin-bottom: 25px;">Registrar Solicitud de Insumos</h2>
+                <form>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="requester-name">Nombre del Solicitante</label>
+                            <input type="text" id="requester-name" class="form-control" placeholder="Ej: Juan Pérez">
+                        </div>
+                        <div class="form-group">
+                            <label for="requester-position">Cargo</label>
+                            <input type="text" id="requester-position" class="form-control" placeholder="Ej: Chef">
+                        </div>
+                        <div class="form-group full-width">
+                            <label>Seleccione los insumos:</label>
+                            <div class="checkbox-group">
+                                <div class="checkbox-item"><input type="checkbox" id="arroz"><label for="arroz">Arroz</label></div>
+                                <div class="checkbox-item"><input type="checkbox" id="fideos"><label for="fideos">Fideos</label></div>
+                                <div class="checkbox-item"><input type="checkbox" id="verduras"><label for="verduras">Verduras</label></div>
+                                <div class="checkbox-item"><input type="checkbox" id="carnes"><label for="carnes">Carnes</label></div>
+                                <div class="checkbox-item"><input type="checkbox" id="aceite"><label for="aceite">Aceite</label></div>
+                                <div class="checkbox-item"><input type="checkbox" id="wonton"><label for="wonton">Wontón</label></div>
+                                <div class="checkbox-item"><input type="checkbox" id="jamon"><label for="jamon">Jamón</label></div>
+                                <div class="checkbox-item"><input type="checkbox" id="salsa-soja"><label for="salsa-soja">Salsa de Soja</label></div>
+                            </div>
+                        </div>
+                        <div class="form-group full-width">
+                            <label for="request-comments">Comentarios adicionales</label>
+                            <textarea id="request-comments" class="form-control" rows="4" placeholder="Añade cualquier comentario extra..."></textarea>
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-primary" style="margin-top: 20px;">
+                        <i class="fas fa-save"></i> Registrar Solicitud
+                    </button>
+                </form>
+            </div>
+        </section>
+
+        <!-- Vista 3: Registrar Despacho -->
+        <section id="view-dispatch" class="view">
+            <div class="content-card">
+                <h2 style="color: #ff3333; margin-bottom: 25px;">Registrar Despacho de Insumos</h2>
+                <form>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="dispatch-requester">Nombre de Solicitante</label>
+                            <input type="text" id="dispatch-requester" class="form-control" placeholder="Ej: Juan Pérez">
+                        </div>
+                        <div class="form-group">
+                            <label for="dispatch-code">Codigo de solicitud</label>
+                            <input type="text" id="dispatch-code" class="form-control" placeholder="Ej: SOL-001">
+                        </div>
+                        <div class="form-group full-width">
+                            <label>Seleccione los insumos a despachar:</label>
+                            <div class="checkbox-group">
+                                <div class="checkbox-item"><input type="checkbox" id="d-arroz"><label for="d-arroz">Arroz</label></div>
+                                <div class="checkbox-item"><input type="checkbox" id="d-fideos"><label for="d-fideos">Fideos</label></div>
+                                <div class="checkbox-item"><input type="checkbox" id="d-verduras"><label for="d-verduras">Verduras</label></div>
+                                <div class="checkbox-item"><input type="checkbox" id="d-carnes"><label for="d-carnes">Carnes</label></div>
+                                <div class="checkbox-item"><input type="checkbox" id="d-aceite"><label for="d-aceite">Aceite</label></div>
+                                <div class="checkbox-item"><input type="checkbox" id="d-wonton"><label for="d-wonton">Wontón</label></div>
+                                <div class="checkbox-item"><input type="checkbox" id="d-jamon"><label for="d-jamon">Jamón</label></div>
+                                <div class="checkbox-item"><input type="checkbox" id="d-salsa-soja"><label for="d-salsa-soja">Salsa de Soja</label></div>
+                            </div>
+                        </div>
+                        <div class="form-group full-width">
+                            <label for="dispatch-comments">Comentarios adicionales</label>
+                            <textarea id="dispatch-comments" class="form-control" rows="4" placeholder="Notas sobre el despacho..."></textarea>
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-primary" style="margin-top: 20px;">
+                        <i class="fas fa-truck"></i> Registrar Despacho
+                    </button>
+                </form>
+            </div>
+        </section>
+
+        <!-- Vista 4: Orden de Compra -->
+        <section id="view-purchase-order" class="view">
+            <div class="content-card">
+                <h2 style="color: #ff3333; margin-bottom: 25px;">Orden de Compra</h2>
+                <form>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="manager-name">Nombre del Encargado</label>
+                            <input type="text" id="manager-name" class="form-control" placeholder="Ej: Carlos Gómez">
+                        </div>
+                        <div class="form-group">
+                            <label for="request-code">Código de Solicitud</label>
+                            <input type="text" id="request-code" class="form-control" placeholder="Ej: COMP-2023-001">
+                        </div>
+                    </div>
+                    
+                    <h3 style="margin-top: 30px; margin-bottom: 15px;">Detalle de Insumos a Comprar:</h3>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Producto</th>
+                                <th>Existencia (kg)</th>
+                                <th>Cantidad a Comprar (kg)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Arroz</td>
+                                <td>3</td>
+                                <td><input type="number" class="form-control" value="5" style="width: 100px;"></td>
+                            </tr>
+                            <tr>
+                                <td>Verduras</td>
+                                <td>8</td>
+                                <td><input type="number" class="form-control" value="10" style="width: 100px;"></td>
+                            </tr>
+                            <tr>
+                                <td>Carnes</td>
+                                <td>4</td>
+                                <td><input type="number" class="form-control" value="6" style="width: 100px;"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <button type="button" class="btn btn-primary" style="margin-top: 20px;">
+                        <i class="fas fa-check-circle"></i> Completar Orden
+                    </button>
+                </form>
+            </div>
+        </section>
+
+        <!-- Vista 5: Actualizar Stock -->
+        <section id="view-stock" class="view">
+            <div class="content-card">
+                <h2 style="color: #ff3333; margin-bottom: 25px;">Actualizar Stock de Insumos</h2>
+                <form>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="stock-name">Nombre del Insumo</label>
+                            <input type="text" id="stock-name" class="form-control" placeholder="Buscar insumo...">
+                        </div>
+                        <div class="form-group">
+                            <label for="stock-category">Categoria</label>
+                            <input type="text" id="stock-category" class="form-control" placeholder="Ej: Vegetales">
+                        </div>
+                    </div>
+                    
+                    <h3 style="margin-top: 30px; margin-bottom: 15px;">Tabla de Ingredientes:</h3>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Ingrediente</th>
+                                <th>Categoria</th>
+                                <th>Cantidad actual (kg)</th>
+                                <th>Nueva cantidad</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Jamón</td>
+                                <td>Cárnicos</td>
+                                <td>12</td>
+                                <td><input type="number" class="form-control" value="12" style="width: 100px;"></td>
+                            </tr>
+                            <tr>
+                                <td>Verduras</td>
+                                <td>Vegetales</td>
+                                <td>8</td>
+                                <td><input type="number" class="form-control" value="8" style="width: 100px;"></td>
+                            </tr>
+                            <tr>
+                                <td>Carnes</td>
+                                <td>Cárnicos</td>
+                                <td>15</td>
+                                <td><input type="number" class="form-control" value="15" style="width: 100px;"></td>
+                            </tr>
+                            <tr>
+                                <td>Wontón</td>
+                                <td>Otros</td>
+                                <td>20</td>
+                                <td><input type="number" class="form-control" value="20" style="width: 100px;"></td>
+                            </tr>
+                            <tr>
+                                <td>Aceite</td>
+                                <td>Grasas</td>
+                                <td>5</td>
+                                <td><input type="number" class="form-control" value="5" style="width: 100px;"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <button type="button" class="btn btn-primary" style="margin-top: 20px;">
+                        <i class="fas fa-sync-alt"></i> Actualizar Stock
+                    </button>
+                </form>
+            </div>
+        </section>
+
+        <!-- Vista 6: Historial de Movimientos -->
+        <section id="view-history" class="view">
+            <div class="content-card">
+                <h2 style="color: #ff3333; margin-bottom: 25px;">Historial de movimientos</h2>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Producto</th>
+                            <th>Cantidad</th>
+                            <th>Tipo de movimiento</th>
+                            <th>Observación</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td colspan="5" class="no-records">No hay registros para mostrar</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="table-actions">
+                    <button class="btn btn-secondary"><i class="fas fa-file-excel"></i> Exportar a Excel</button>
+                    <button class="btn btn-secondary"><i class="fas fa-file-pdf"></i> Exportar a PDF</button>
+                    <button class="btn btn-danger"><i class="fas fa-trash-alt"></i> Eliminar Historial</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Vista 7: Configuración -->
+        <section id="view-settings" class="view">
+            <div class="content-card">
+                <h2 style="color: #ff3333; margin-bottom: 25px;">Configuración del Sistema</h2>
+                
+                <div class="settings-group">
+                    <h3 style="margin-bottom: 20px;">Perfil de Usuario</h3>
+                    <div class="form-group">
+                        <label for="user-name">Nombre de Usuario</label>
+                        <input type="text" id="user-name" class="form-control" value="Administrador">
+                    </div>
+                    <div class="form-group">
+                        <label for="user-email">Correo Electrónico</label>
+                        <input type="email" id="user-email" class="form-control" value="admin@wingyachifa.com">
+                    </div>
+                </div>
+
+                <div class="settings-group">
+                    <h3 style="margin-bottom: 20px;">Preferencias del Sistema</h3>
+                    <div class="setting-item">
+                        <label for="email-notifications">Notificaciones por Correo</label>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="email-notifications" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <div class="setting-item">
+                        <label for="dark-mode">Modo Oscuro (Próximamente)</label>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="dark-mode">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <button type="button" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Guardar Cambios
+                </button>
+            </div>
+        </section>
+
+        <!-- Vista 8: Ayuda -->
+        <section id="view-help" class="view">
+            <div class="content-card">
+                <h2 style="color: #ff3333; margin-bottom: 25px;">Centro de Ayuda</h2>
+                <h3 style="margin-bottom: 20px;">Preguntas Frecuentes (FAQ)</h3>
+                
+                <details class="faq-item">
+                    <summary>¿Cómo registro una nueva solicitud de insumos?</summary>
+                    <p>Para registrar una nueva solicitud, ve al menú lateral y haz clic en "Registrar Solicitud". Llena el formulario con tu nombre, cargo y selecciona los insumos que necesitas de la lista. Finalmente, añade cualquier comentario adicional y presiona el botón "Registrar Solicitud".</p>
+                </details>
+
+                <details class="faq-item">
+                    <summary>¿Qué hago si el stock de un producto es incorrecto?</summary>
+                    <p>Si encuentras una discrepancia en el stock, dirígete a la sección "Actualizar Stock" en el menú. Busca el ingrediente en la tabla, corrige la cantidad en el campo "Nueva cantidad" y haz clic en "Actualizar Stock" para aplicar los cambios.</p>
+                </details>
+
+                <details class="faq-item">
+                    <summary>¿Puedo exportar el historial de movimientos?</summary>
+                    <p>Sí. En la sección "Historial de Movimientos", encontrarás botones para exportar los datos a formatos Excel y PDF. Simplemente haz clic en el botón de tu preferencia para descargar el archivo.</p>
+                </details>
+
+                <details class="faq-item">
+                    <summary>¿A quién contactar para soporte técnico?</summary>
+                    <p>Para soporte técnico, puedes enviar un correo electrónico a nuestro equipo de desarrollo: soporte@wingyachifa.com o llamar al número de asistencia: +51 958 887 089.</p>
+                </details>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const menuItems = document.querySelectorAll('.menu-item[data-view]');
+            const views = document.querySelectorAll('.view');
+            const pageTitle = document.getElementById('page-title');
+            const logoutBtn = document.getElementById('logout-btn');
+
+            // Títulos para cada vista
+            const titles = {
+                'view-welcome': 'Panel de Control',
+                'view-request': 'Registrar Solicitud',
+                'view-dispatch': 'Registrar Despacho',
+                'view-purchase-order': 'Orden de Compra',
+                'view-stock': 'Actualizar Inventario',
+                'view-history': 'Historial de Movimientos',
+                'view-settings': 'Configuración',
+                'view-help': 'Centro de Ayuda'
+            };
+
+            // Función para cambiar la vista activa
+            function showView(viewId) {
+                views.forEach(view => view.classList.remove('active'));
+                const activeView = document.getElementById(viewId);
+                if (activeView) {
+                    activeView.classList.add('active');
+                }
+                pageTitle.textContent = titles[viewId] || 'Panel de Control';
+            }
+
+            // Evento para los items del menú
+            menuItems.forEach(item => {
+                item.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    menuItems.forEach(i => i.classList.remove('active'));
+                    this.classList.add('active');
+                    const viewId = this.getAttribute('data-view');
+                    if (viewId) {
+                        showView(viewId);
+                    }
+                });
+            });
+
+            // Evento para el botón de Cerrar Sesión
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const confirmLogout = confirm('¿Está seguro de que desea cerrar sesión?');
+                    if (confirmLogout) {
+                        // Simula el cierre de sesión recargando la página
+                        alert('Sesión cerrada correctamente.');
+                        location.reload();
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>
